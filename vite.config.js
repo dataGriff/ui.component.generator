@@ -1,0 +1,23 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  base: '/ui.component.generator/',
+  resolve: {
+    alias: {
+      'react-native': 'react-native-web',
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          highlighter: ['react-syntax-highlighter'],
+        },
+      },
+    },
+  },
+})
