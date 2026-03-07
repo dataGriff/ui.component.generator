@@ -1,8 +1,9 @@
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
-function buildSystemPrompt(brand) {
-  return `You are an expert React Native component generator. Your job is to create high-quality, production-ready React Native components based on user descriptions.
+import designSystemPrompt from '../prompts/designSystem.md?raw';
 
+function buildSystemPrompt(brand) {
+  const brandContext = `
 You MUST apply the following brand theme consistently to every component you generate:
 
 BRAND: ${brand.name}
@@ -24,18 +25,9 @@ Typography:
 
 Spacing: xs=${brand.spacing.xs}, sm=${brand.spacing.sm}, md=${brand.spacing.md}, lg=${brand.spacing.lg}, xl=${brand.spacing.xl}
 
-Border Radius: sm=${brand.borderRadius.sm}, md=${brand.borderRadius.md}, lg=${brand.borderRadius.lg}
+Border Radius: sm=${brand.borderRadius.sm}, md=${brand.borderRadius.md}, lg=${brand.borderRadius.lg}`;
 
-Rules:
-1. Always import React and required React Native components (View, Text, TouchableOpacity, StyleSheet, etc.)
-2. Use StyleSheet.create() for all styles
-3. Apply brand colors and typography consistently
-4. Export the component as default
-5. Include PropTypes-style JSDoc comments for props
-6. Make components responsive and accessible
-7. Return ONLY the component code, no explanations or markdown code blocks
-8. The component should be a complete, working React Native functional component
-9. Name the component clearly based on its purpose (e.g., PrimaryButton, UserCard, SearchBar)`;
+  return designSystemPrompt + '\n' + brandContext;
 }
 
 export async function generateComponent(messages, brand, apiKey, model = 'gpt-4o-mini') {

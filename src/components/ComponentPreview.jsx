@@ -63,8 +63,11 @@ function LivePreview({ code }) {
       const wrappedCode = `function __preview__(React, RN) {
         const { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput,
                 FlatList, Pressable, ActivityIndicator, Switch, Platform, Dimensions,
-                ImageBackground, SafeAreaView, StatusBar, Modal, Alert } = RN;
-        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+                ImageBackground, SafeAreaView, StatusBar, Modal, Alert,
+                Animated, Easing, LayoutAnimation, KeyboardAvoidingView,
+                SectionList, VirtualizedList, Linking, PixelRatio, AppState,
+                useWindowDimensions, useColorScheme } = RN;
+        const { useState, useEffect, useRef, useMemo, useCallback, useContext, useReducer } = React;
         // Mock PropTypes so generated code with .propTypes doesn't crash
         var PropTypes = { string: 0, number: 0, bool: 0, func: 0, object: 0, array: 0,
           node: 0, element: 0, any: 0, symbol: 0, shape: function(){return 0;},
@@ -106,6 +109,34 @@ function LivePreview({ code }) {
       </div>
     </div>
   );
+}
+
+/** Error boundary so preview crashes don't blank the whole page */
+class PreviewErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error: error.message };
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.code !== this.props.code) {
+      this.setState({ error: null });
+    }
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="preview__live-error">
+          <strong>Preview crashed</strong>
+          <p>{this.state.error}</p>
+          <p style={{ fontSize: 12, color: '#64748B' }}>Switch to the Code tab to see the generated source.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export default function ComponentPreview({ code, brand: brandProp, onSave }) {
@@ -175,7 +206,9 @@ export default function ComponentPreview({ code, brand: brandProp, onSave }) {
       </div>
 
       {tab === 'preview' ? (
-        <LivePreview code={code} />
+        <PreviewErrorBoundary code={code}>
+          <LivePreview code={code} />
+        </PreviewErrorBoundary>
       ) : (
         <div className="preview__code">
           <SyntaxHighlighter
