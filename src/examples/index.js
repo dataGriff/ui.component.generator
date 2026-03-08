@@ -510,6 +510,443 @@ const styles = StyleSheet.create({
 });
 `;
 
+const holidayDestinationPickerCode = `import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+
+export default function HolidayDestinationPicker() {
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [savedIds, setSavedIds] = useState([1, 3]);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const categories = ['All', '🏖 Beach', '🏔 Mountain', '🏙 City', '🏛 Culture'];
+
+  const destinations = [
+    {
+      id: 1,
+      name: 'Santorini',
+      country: 'Greece 🇬🇷',
+      category: '🏖 Beach',
+      emoji: '🏝',
+      color: '#1B6CA8',
+      accentColor: '#87CEEB',
+      price: 189,
+      rating: 4.9,
+      duration: '7 days',
+      temp: '27°C',
+      tags: ['Sunsets', 'Wine', 'Caldera Views'],
+      description: 'Iconic blue-domed churches, dramatic caldera views, and the most breathtaking sunsets in the world await you.',
+    },
+    {
+      id: 2,
+      name: 'Kyoto',
+      country: 'Japan 🇯🇵',
+      category: '🏛 Culture',
+      emoji: '⛩️',
+      color: '#C0392B',
+      accentColor: '#F9A8A8',
+      price: 145,
+      rating: 4.8,
+      duration: '10 days',
+      temp: '18°C',
+      tags: ['Temples', 'Cherry Blossoms', 'Tea Ceremony'],
+      description: 'Ancient temples, bamboo forests, and geisha districts transport you to a timeless Japan.',
+    },
+    {
+      id: 3,
+      name: 'Banff',
+      country: 'Canada 🇨🇦',
+      category: '🏔 Mountain',
+      emoji: '🏔',
+      color: '#1A7A4A',
+      accentColor: '#A8E6CF',
+      price: 220,
+      rating: 4.7,
+      duration: '5 days',
+      temp: '12°C',
+      tags: ['Hiking', 'Glacial Lakes', 'Wildlife'],
+      description: 'Turquoise glacial lakes, snow-capped peaks, and untamed wilderness make Banff a paradise for nature lovers.',
+    },
+    {
+      id: 4,
+      name: 'Amalfi Coast',
+      country: 'Italy 🇮🇹',
+      category: '🏖 Beach',
+      emoji: '🌊',
+      color: '#D35400',
+      accentColor: '#FAD7A0',
+      price: 210,
+      rating: 4.9,
+      duration: '8 days',
+      temp: '25°C',
+      tags: ['Cliffside', 'Limoncello', 'Boat Tours'],
+      description: "Dramatic cliffs plunging into crystal-clear waters, colorful villages, and Italy's finest cuisine.",
+    },
+    {
+      id: 5,
+      name: 'Tokyo',
+      country: 'Japan 🇯🇵',
+      category: '🏙 City',
+      emoji: '🗼',
+      color: '#7D3C98',
+      accentColor: '#D7BDE2',
+      price: 130,
+      rating: 4.8,
+      duration: '6 days',
+      temp: '20°C',
+      tags: ['Neon Lights', 'Ramen', 'Shibuya'],
+      description: 'A dazzling metropolis where ancient shrines sit alongside futuristic skyscrapers and world-class cuisine.',
+    },
+    {
+      id: 6,
+      name: 'Machu Picchu',
+      country: 'Peru 🇵🇪',
+      category: '🏛 Culture',
+      emoji: '🏛️',
+      color: '#1E8449',
+      accentColor: '#F9E79F',
+      price: 175,
+      rating: 4.9,
+      duration: '9 days',
+      temp: '15°C',
+      tags: ['Inca Trail', 'Sunrise', 'Mystical'],
+      description: 'The lost city of the Incas perches high in the Andes — a UNESCO Wonder that takes your breath away.',
+    },
+  ];
+
+  const toggleSave = (id) => {
+    setSavedIds(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
+  const filtered = activeCategory === 'All'
+    ? destinations
+    : destinations.filter(d => d.category === activeCategory);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.eyebrow}>WHERE TO NEXT?</Text>
+          <Text style={styles.title}>Dream Holidays ✈️</Text>
+        </View>
+        <View style={styles.savedBadge}>
+          <Text style={styles.savedBadgeText}>❤️ {savedIds.length} saved</Text>
+        </View>
+      </View>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories} contentContainerStyle={styles.categoriesContent}>
+        {categories.map(cat => (
+          <TouchableOpacity
+            key={cat}
+            style={[styles.catBtn, activeCategory === cat && styles.catBtnActive]}
+            onPress={() => { setActiveCategory(cat); setSelectedId(null); }}
+          >
+            <Text style={[styles.catText, activeCategory === cat && styles.catTextActive]}>{cat}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.list} contentContainerStyle={styles.listContent}>
+        {filtered.map(dest => (
+          <TouchableOpacity
+            key={dest.id}
+            style={styles.card}
+            onPress={() => setSelectedId(selectedId === dest.id ? null : dest.id)}
+            activeOpacity={0.92}
+          >
+            <View style={[styles.cardHero, { backgroundColor: dest.color }]}>
+              <View style={[styles.heroGlow, { backgroundColor: dest.accentColor }]} />
+              <Text style={styles.heroEmoji}>{dest.emoji}</Text>
+              <TouchableOpacity style={styles.heartBtn} onPress={() => toggleSave(dest.id)}>
+                <Text style={styles.heartIcon}>{savedIds.includes(dest.id) ? '❤️' : '🤍'}</Text>
+              </TouchableOpacity>
+              <View style={styles.tempBadge}>
+                <Text style={styles.tempText}>{dest.temp}</Text>
+              </View>
+            </View>
+
+            <View style={styles.cardBody}>
+              <View style={styles.cardTop}>
+                <View style={styles.cardTitleBlock}>
+                  <Text style={styles.destName}>{dest.name}</Text>
+                  <Text style={styles.destCountry}>{dest.country}</Text>
+                </View>
+                <View style={styles.priceBlock}>
+                  <Text style={styles.priceLabel}>from</Text>
+                  <Text style={styles.price}>\${dest.price}</Text>
+                  <Text style={styles.priceNight}>/night</Text>
+                </View>
+              </View>
+
+              <View style={styles.metaRow}>
+                <View style={styles.ratingPill}>
+                  <Text style={styles.ratingText}>⭐ {dest.rating}</Text>
+                </View>
+                <Text style={styles.duration}>🗓 {dest.duration}</Text>
+              </View>
+
+              <View style={styles.tags}>
+                {dest.tags.map(tag => (
+                  <View key={tag} style={[styles.tag, { borderColor: dest.color }]}>
+                    <Text style={[styles.tagText, { color: dest.color }]}>{tag}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {selectedId === dest.id && (
+                <View style={styles.expandedSection}>
+                  <Text style={styles.description}>{dest.description}</Text>
+                  <TouchableOpacity style={[styles.bookBtn, { backgroundColor: dest.color }]}>
+                    <Text style={styles.bookBtnText}>Explore Trip ✈️</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 20,
+    margin: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 12,
+    backgroundColor: '#fff',
+  },
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#9CA3AF',
+    letterSpacing: 1.5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#111827',
+    marginTop: 2,
+  },
+  savedBadge: {
+    backgroundColor: '#FFF1F2',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+  },
+  savedBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#E11D48',
+  },
+  categories: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  categoriesContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    paddingTop: 4,
+    gap: 8,
+  },
+  catBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+  },
+  catBtnActive: {
+    backgroundColor: '#111827',
+  },
+  catText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  catTextActive: {
+    color: '#fff',
+  },
+  list: {
+    maxHeight: 500,
+  },
+  listContent: {
+    padding: 12,
+    paddingBottom: 16,
+    gap: 12,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+  },
+  cardHero: {
+    height: 110,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  heroGlow: {
+    position: 'absolute',
+    bottom: -20,
+    right: -20,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    opacity: 0.35,
+  },
+  heroEmoji: {
+    fontSize: 48,
+  },
+  heartBtn: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 18,
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartIcon: {
+    fontSize: 17,
+  },
+  tempBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+  },
+  tempText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  cardBody: {
+    padding: 14,
+  },
+  cardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cardTitleBlock: {
+    flex: 1,
+  },
+  destName: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  destCountry: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  priceBlock: {
+    alignItems: 'flex-end',
+  },
+  priceLabel: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    fontWeight: '600',
+  },
+  price: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  priceNight: {
+    fontSize: 10,
+    color: '#9CA3AF',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 10,
+  },
+  ratingPill: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  ratingText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#92400E',
+  },
+  duration: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 10,
+    gap: 6,
+  },
+  tag: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  tagText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  expandedSection: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  description: {
+    fontSize: 14,
+    color: '#374151',
+    lineHeight: 22,
+  },
+  bookBtn: {
+    marginTop: 14,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  bookBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+});
+`;
+
 export const exampleComponents = [
   {
     name: 'ProfileCard',
@@ -528,5 +965,11 @@ export const exampleComponents = [
     description: 'An interactive to-do list with progress bar, checkboxes, delete, and add-task input.',
     brandId: 'default',
     code: todoListCode,
+  },
+  {
+    name: 'HolidayDestinationPicker',
+    description: 'A vibrant holiday destination picker with category filters, save/heart, temperature badges, price info, and expandable trip details.',
+    brandId: 'default',
+    code: holidayDestinationPickerCode,
   },
 ];
