@@ -3,6 +3,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { listComponents, getComponentContent } from '../services/githubService';
 import { getBrandById } from '../brands';
+import { exampleComponents } from '../examples';
+import ComponentPreview from './ComponentPreview';
 
 export default function GalleryPage({ githubSettings, savedComponents }) {
   const [remoteComponents, setRemoteComponents] = useState([]);
@@ -11,7 +13,8 @@ export default function GalleryPage({ githubSettings, savedComponents }) {
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [selectedCode, setSelectedCode] = useState('');
   const [loadingCode, setLoadingCode] = useState(false);
-  const [activeTab, setActiveTab] = useState('local');
+  const [activeTab, setActiveTab] = useState('examples');
+  const [selectedExample, setSelectedExample] = useState(null);
 
   const fetchRemoteComponents = async () => {
     if (!githubSettings?.token || !githubSettings?.owner || !githubSettings?.repo) {
@@ -69,14 +72,20 @@ export default function GalleryPage({ githubSettings, savedComponents }) {
         <h2>Component Gallery</h2>
         <div className="gallery__tabs">
           <button
+            className={`gallery__tab ${activeTab === 'examples' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('examples'); setSelectedComponent(null); setSelectedCode(''); }}
+          >
+            ✨ Examples ({exampleComponents.length})
+          </button>
+          <button
             className={`gallery__tab ${activeTab === 'local' ? 'active' : ''}`}
-            onClick={() => setActiveTab('local')}
+            onClick={() => { setActiveTab('local'); setSelectedExample(null); }}
           >
             💾 Local Session ({savedComponents.length})
           </button>
           <button
             className={`gallery__tab ${activeTab === 'remote' ? 'active' : ''}`}
-            onClick={() => setActiveTab('remote')}
+            onClick={() => { setActiveTab('remote'); setSelectedExample(null); }}
           >
             ☁️ GitHub Repository
           </button>
@@ -84,6 +93,44 @@ export default function GalleryPage({ githubSettings, savedComponents }) {
       </div>
 
       <div className="gallery__content">
+        {activeTab === 'examples' && (
+          <div>
+            <div className="gallery__grid">
+              {exampleComponents.map((example, i) => {
+                const brand = getBrandById(example.brandId);
+                return (
+                  <div
+                    key={i}
+                    className={`gallery__card ${selectedExample === i ? 'active' : ''}`}
+                    onClick={() => setSelectedExample(selectedExample === i ? null : i)}
+                    style={{ borderColor: brand.colors.primary }}
+                  >
+                    <div className="gallery__card-header" style={{ background: brand.colors.primary }}>
+                      <span className="gallery__card-name">{example.name}</span>
+                      <span className="gallery__card-brand">{brand.name}</span>
+                    </div>
+                    <div className="gallery__card-meta">{example.description}</div>
+                    <div className="gallery__card-colors">
+                      {Object.values(brand.colors).slice(0, 5).map((c, ci) => (
+                        <span key={ci} className="preview__color-dot" style={{ background: c }} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {selectedExample !== null && (
+              <div style={{ marginTop: '20px' }}>
+                <ComponentPreview
+                  code={exampleComponents[selectedExample].code}
+                  brand={getBrandById(exampleComponents[selectedExample].brandId)}
+                  onSave={null}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === 'local' && (
           <div>
             {savedComponents.length === 0 ? (
