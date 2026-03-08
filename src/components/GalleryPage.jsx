@@ -124,7 +124,6 @@ export default function GalleryPage({ githubSettings, savedComponents }) {
                 <ComponentPreview
                   code={exampleComponents[selectedExample].code}
                   brand={getBrandById(exampleComponents[selectedExample].brandId)}
-                  onSave={null}
                 />
               </div>
             )}

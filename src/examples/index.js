@@ -16,7 +16,7 @@ export default function ProfileCard() {
         <Text style={styles.name}>Jane Doe</Text>
         <Text style={styles.handle}>@janedoe</Text>
         <Text style={styles.bio}>
-          Product designer &amp; React Native developer. Building beautiful mobile experiences.
+          Product designer & React Native developer. Building beautiful mobile experiences.
         </Text>
         <View style={styles.stats}>
           <View style={styles.statItem}>
